@@ -2,7 +2,13 @@
 
 <div class="ccm-header-search-form ccm-ui" data-header="express-search">
     <form method="get" action="<?php echo URL::to('/ccm/system/search/express/basic')?>?exEntityID=<?=$entity->getID()?>">
-        <div class="input-group">
+      <?php foreach ($columns as $col) : ?>
+        <input type="hidden" name="column[]" value="<?php echo $col ?>">
+      <?php endforeach; ?>
+      <input type="hidden" name="fSearchDefaultSort" value="<?php echo $fSearchDefaultSort ?>">
+      <input type="hidden" name="fSearchDefaultSortDirection" value="<?php echo $fSearchDefaultSortDirection ?>">
+
+      <div class="input-group">
 
             <div class="ccm-header-search-form-input">
                 <a class="ccm-header-reset-search" href="#"

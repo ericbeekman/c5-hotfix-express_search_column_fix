@@ -46,7 +46,7 @@ class Header extends ElementController
     {
         parent::__construct();
         $this->entity = $entity;
-        
+
         if ($page != null) {
             $this->page = $page;
             $this->setCreateURL(\URL::to($page->getCollectionPath(), 'create_entry', $entity->getID()));
@@ -80,5 +80,22 @@ class Header extends ElementController
         $this->set('entity', $this->getEntity());
         $this->set('createURL', $this->getCreateURL());
         $this->set('exportURL', $this->getExportURL());
+        $this->setColumns();
+    }
+
+    public function setColumns() {
+      $app = \Concrete\Core\Support\Facade\Application::getFacadeApplication();
+      $provider = $app->make('Concrete\Core\Express\Search\SearchProvider', array($this->getEntity(), $this->getEntity()->getAttributeKeyCategory()));
+      $current = $provider->getCurrentColumnSet();
+      $ds = $current->getDefaultSortColumn();
+      $list = $current->getColumns();
+      $columns = [];
+      foreach ($list as $col) {
+        $columns[] = $col->getColumnKey(); // 'ak_' . $ak->getAttributeKeyHandle();
+      }
+      $this->set('columns', $columns);
+      $this->set('fSearchDefaultSort', $ds->getColumnKey());
+      $this->set('fSearchDefaultSortDirection', $ds->getColumnDefaultSortDirection());
+      return $columns;
     }
 }

@@ -28,8 +28,21 @@ abstract class Standard extends AbstractController
         $provider = $advancedSearch->getSearchProvider();
         $query = $advancedSearch->getSearchQuery();
 
+        $set = $provider->getBaseColumnSet();
+        $available = $provider->getAvailableColumnSet();
+
+        if ($this->request->query->get('column')) {
+          foreach ($this->request->query->get('column') as $key) {
+              $set->addColumn($available->getColumnByKey($key));
+          }
+          $sort = $available->getColumnByKey($this->getRequestDefaultSort());
+          $set->setDefaultSortColumn($sort, $this->getRequestDefaultSortDirection());
+          $query->setColumns($set);
+        } else {
+          $query->setColumns($provider->getDefaultColumnSet());
+        }
+
         $query->setFields($this->getBasicSearchFieldsFromRequest());
-        $query->setColumns($provider->getDefaultColumnSet());
         $result = $provider->getSearchResultFromQuery($query);
         $result->setBaseURL($advancedSearch->getBasicSearchBaseURL());
 
@@ -38,6 +51,16 @@ abstract class Standard extends AbstractController
         $result->setQuery(null);
 
         return $result;
+    }
+
+    protected function getRequestDefaultSort()
+    {
+        return $this->request->query->get('fSearchDefaultSort');
+    }
+
+    protected function getRequestDefaultSortDirection()
+    {
+        return $this->request->query->get('fSearchDefaultSortDirection');
     }
 
     abstract protected function getSavedSearchPreset($presetID);
